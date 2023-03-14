@@ -1,0 +1,81 @@
+{
+    "assets": {
+        "image_geotiff": {
+            "href": "image_geotiff.tif",
+            "type": "image/tiff; application=geotiff"
+        },
+        "image_jpeg": {
+            "href": "image_jpeg.jpg",
+            "type": "image/jpeg"
+        }
+    },
+    "bbox": [
+        -84.95658874511719,
+        16.08732060417107,
+        -84.95624542236328,
+        16.08738245696916
+    ],
+    "collection": "nasa_marine_debris_source",
+    "geometry": {
+        "coordinates": [
+            [
+                [
+                    -84.95658874511719,
+                    16.08738245696916
+                ],
+                [
+                    -84.95658874511719,
+                    16.087361839369795
+                ],
+                [
+                    -84.95650291442871,
+                    16.087361839369795
+                ],
+                [
+                    -84.95650291442871,
+                    16.08734122177043
+                ],
+                [
+                    -84.95639562606812,
+                    16.08734122177043
+                ],
+                [
+                    -84.95639562606812,
+                    16.08732060417107
+                ],
+                [
+                    -84.95624542236328,
+                    16.08732060417107
+                ],
+                [
+                    -84.95624542236328,
+                    16.08738245696916
+                ],
+                [
+                    -84.95658874511719,
+                    16.08738245696916
+                ]
+            ]
+        ],
+        "type": "Polygon"
+    },
+    "id": "nasa_marine_debris_source_20170323_152750_0e20_17302-29800-16",
+    "links": [
+        {
+            "href": "../collection.json",
+            "rel": "collection"
+        },
+        {
+            "href": "../collection.json",
+            "rel": "parent"
+        }
+    ],
+    "properties": {
+        "datetime": "2017-03-23T00:00:00Z"
+    },
+    "stac_extensions": [
+        "https://stac-extensions.github.io/eo/v1.0.0/schema.json"
+    ],
+    "stac_version": "1.0.0",
+    "type": "Feature"
+}

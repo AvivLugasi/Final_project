@@ -1,0 +1,73 @@
+{
+    "assets": {
+        "documentation": {
+            "href": "../_common/documentation.pdf",
+            "type": "application/pdf"
+        },
+        "labels": {
+            "href": "labels.geojson",
+            "type": "application/geo+json"
+        },
+        "pixel_bounds": {
+            "href": "pixel_bounds.npy",
+            "type": "application/octet-stream"
+        }
+    },
+    "bbox": [
+        -88.0279541015625,
+        15.82925095330144,
+        -88.0224609375,
+        15.834535741221561
+    ],
+    "collection": "nasa_marine_debris_labels",
+    "geometry": {
+        "coordinates": [
+            [
+                [
+                    -88.0279541015625,
+                    15.834535741221561
+                ],
+                [
+                    -88.0279541015625,
+                    15.82925095330144
+                ],
+                [
+                    -88.0224609375,
+                    15.82925095330144
+                ],
+                [
+                    -88.0224609375,
+                    15.834535741221561
+                ],
+                [
+                    -88.0279541015625,
+                    15.834535741221561
+                ]
+            ]
+        ],
+        "type": "Polygon"
+    },
+    "id": "nasa_marine_debris_labels_20170927_154611_0e14_16743-29848-16",
+    "links": [
+        {
+            "href": "../collection.json",
+            "rel": "collection"
+        },
+        {
+            "href": "../collection.json",
+            "rel": "parent"
+        },
+        {
+            "href": "../../nasa_marine_debris_source/nasa_marine_debris_source_20170927_154611_0e14_16743-29848-16/stac.json",
+            "rel": "source"
+        }
+    ],
+    "properties": {
+        "datetime": "2017-09-27T00:00:00Z"
+    },
+    "stac_extensions": [
+        "https://stac-extensions.github.io/label/v1.0.0/schema.json"
+    ],
+    "stac_version": "1.0.0",
+    "type": "Feature"
+}

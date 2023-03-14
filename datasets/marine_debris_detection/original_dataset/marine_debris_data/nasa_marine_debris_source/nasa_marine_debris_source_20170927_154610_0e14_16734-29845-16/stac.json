@@ -1,0 +1,65 @@
+{
+    "assets": {
+        "image_geotiff": {
+            "href": "image_geotiff.tif",
+            "type": "image/tiff; application=geotiff"
+        },
+        "image_jpeg": {
+            "href": "image_jpeg.jpg",
+            "type": "image/jpeg"
+        }
+    },
+    "bbox": [
+        -88.07722091674805,
+        15.848985613731402,
+        -88.07715654373169,
+        15.849026897895849
+    ],
+    "collection": "nasa_marine_debris_source",
+    "geometry": {
+        "coordinates": [
+            [
+                [
+                    -88.07722091674805,
+                    15.849026897895849
+                ],
+                [
+                    -88.07722091674805,
+                    15.848985613731402
+                ],
+                [
+                    -88.07715654373169,
+                    15.848985613731402
+                ],
+                [
+                    -88.07715654373169,
+                    15.849026897895849
+                ],
+                [
+                    -88.07722091674805,
+                    15.849026897895849
+                ]
+            ]
+        ],
+        "type": "Polygon"
+    },
+    "id": "nasa_marine_debris_source_20170927_154610_0e14_16734-29845-16",
+    "links": [
+        {
+            "href": "../collection.json",
+            "rel": "collection"
+        },
+        {
+            "href": "../collection.json",
+            "rel": "parent"
+        }
+    ],
+    "properties": {
+        "datetime": "2017-09-27T00:00:00Z"
+    },
+    "stac_extensions": [
+        "https://stac-extensions.github.io/eo/v1.0.0/schema.json"
+    ],
+    "stac_version": "1.0.0",
+    "type": "Feature"
+}

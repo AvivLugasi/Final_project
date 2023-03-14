@@ -1,0 +1,89 @@
+{
+    "assets": {
+        "documentation": {
+            "href": "../_common/documentation.pdf",
+            "type": "application/pdf"
+        },
+        "labels": {
+            "href": "labels.geojson",
+            "type": "application/geo+json"
+        },
+        "pixel_bounds": {
+            "href": "pixel_bounds.npy",
+            "type": "application/octet-stream"
+        }
+    },
+    "bbox": [
+        -88.04608583450317,
+        15.828631626020842,
+        -88.04604291915894,
+        15.828879356933081
+    ],
+    "collection": "nasa_marine_debris_labels",
+    "geometry": {
+        "coordinates": [
+            [
+                [
+                    -88.04606437683105,
+                    15.828879356933081
+                ],
+                [
+                    -88.04606437683105,
+                    15.82881742420502
+                ],
+                [
+                    -88.04608583450317,
+                    15.82881742420502
+                ],
+                [
+                    -88.04608583450317,
+                    15.828776135719648
+                ],
+                [
+                    -88.04606437683105,
+                    15.828776135719648
+                ],
+                [
+                    -88.04606437683105,
+                    15.828631626020842
+                ],
+                [
+                    -88.04604291915894,
+                    15.828631626020842
+                ],
+                [
+                    -88.04604291915894,
+                    15.828879356933081
+                ],
+                [
+                    -88.04606437683105,
+                    15.828879356933081
+                ]
+            ]
+        ],
+        "type": "Polygon"
+    },
+    "id": "nasa_marine_debris_labels_20180919_160750_1020_16739-29849-16",
+    "links": [
+        {
+            "href": "../collection.json",
+            "rel": "collection"
+        },
+        {
+            "href": "../collection.json",
+            "rel": "parent"
+        },
+        {
+            "href": "../../nasa_marine_debris_source/nasa_marine_debris_source_20180919_160750_1020_16739-29849-16/stac.json",
+            "rel": "source"
+        }
+    ],
+    "properties": {
+        "datetime": "2018-09-19T00:00:00Z"
+    },
+    "stac_extensions": [
+        "https://stac-extensions.github.io/label/v1.0.0/schema.json"
+    ],
+    "stac_version": "1.0.0",
+    "type": "Feature"
+}
