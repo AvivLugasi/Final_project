@@ -1,0 +1,12 @@
+names:
+- '1'
+nc: 1
+roboflow:
+  license: CC BY 4.0
+  project: marine-debries-detection
+  url: https://universe.roboflow.com/project/marine-debries-detection/dataset/1
+  version: 1
+  workspace: project
+test: ../test/images
+train: marine-debries-detection-1/train/images
+val: marine-debries-detection-1/valid/images
