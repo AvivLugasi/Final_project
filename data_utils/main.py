@@ -1,3 +1,5 @@
+from googleapiclient.errors import HttpError
+
 from data_utils.get_planet_scenes import search, download_tif_files, download_jpeg_files, split_image
 
 
@@ -66,6 +68,22 @@ def main():
 
     q_res = search(geometry, gte, lte, max_cloud_percentage)
     download_tif_files(q_res)
+
+    from pydrive.auth import GoogleAuth
+    from pydrive.drive import GoogleDrive
+
+    gauth = GoogleAuth(settings_file='settings.yaml')
+    drive = GoogleDrive(gauth)
+    upload_file_list = ['/Users/guyyehezkel/Desktop/InformationSystems/third_year/finalProject/Final_project/data_utils/searches/2023-04-08 18:59:26.010462/20161008_073252_0e3a/tiles/tile_0_2.jpg']
+    for upload_file in upload_file_list:
+        gfile = drive.CreateFile()
+        # Read file and set it as the content of this instance.
+        gfile.SetContentFile(upload_file)
+        # Upload the file.
+        gfile.Upload()
+
+
+
 
 if __name__ == "__main__":
     main()

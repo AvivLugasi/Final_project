@@ -1,21 +1,12 @@
-import importlib
-import os
-import sys
 import time
 from PIL import Image
 import os
-import requests
-from requests.auth import HTTPBasicAuth
-import numpy as np
 import json
 import datetime
-import requests
-import mercantile
-import numpy as np
-import argparse
-from datetime import date
 from planet import api
 import glob
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
 
 # if your Planet API Key is not set as an environment variable, you can paste it below
 if os.environ.get('PL_API_KEY', ''):
@@ -25,6 +16,8 @@ else:
 
 client = api.ClientV1(api_key=API_KEY)
 
+gauth = GoogleAuth(settings_file='settings.yaml')
+drive = GoogleDrive(gauth)
 
 def search(geometry, start_date, end_date, cc):
     """Retrieve search
@@ -174,7 +167,6 @@ def split_image(image_path, tile_size):
     # Create a new directory to save the tiles
     os.makedirs(file_dir + "/tiles", exist_ok=True)
 
-    # Loop over each tile
     for y in range(num_tiles_y):
         for x in range(num_tiles_x):
             # Calculate the position of the tile
@@ -186,6 +178,8 @@ def split_image(image_path, tile_size):
 
             # Save the tile
             tile.convert('RGB').save(f"{file_dir}/tiles/tile_{x}_{y}.jpg", 'JPEG', quality=100)
+
+
 
 
 # =======================================================================================================#
