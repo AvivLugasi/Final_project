@@ -5,6 +5,8 @@ import datetime
 
 gauth = GoogleAuth(settings_file='settings.yaml')
 drive = GoogleDrive(gauth)
+
+
 # upload_file_list = ['/Users/guyyehezkel/Desktop/InformationSystems/third_year/finalProject/Final_project/data_utils/searches/2023-04-08 18:59:26.010462/20161008_073252_0e3a/tiles/tile_0_2.jpg']
 # for upload_file in upload_file_list:
 #     gfile = drive.CreateFile()
@@ -34,6 +36,7 @@ def create_folder(dir_name: str):
     except HttpError as error:
         print(F'An error occurred: {error}')
         return None
+
 
 def upload_to_folder(folder_id, file_name, file):
     """Upload a file to the specified folder and prints file ID, folder ID

@@ -12,14 +12,16 @@ from pydrive.drive import GoogleDrive
 if os.environ.get('PL_API_KEY', ''):
     API_KEY = os.environ.get('PL_API_KEY', '')
 else:
-    API_KEY = 'PLAKce77cdd919f147cc8f5754110aa562c6'
+    # API_KEY = 'PLAKce77cdd919f147cc8f5754110aa562c6'
+    API_KEY = 'PLAKa292687c4916440aa7f7be64d0b0269a'
 
 client = api.ClientV1(api_key=API_KEY)
 
 gauth = GoogleAuth(settings_file='settings.yaml')
 drive = GoogleDrive(gauth)
 
-def search(geometry, start_date, end_date, cc):
+
+def search(geometry, start_date, end_date, cc=0.5):
     """Retrieve search
     ----
     Args:
@@ -28,11 +30,6 @@ def search(geometry, start_date, end_date, cc):
         end_date: same format as start_date
         cc: cloud cover in 0.05 (5%)
     """
-
-    print('geometry: ', geometry)
-    print('collections: PSScene')
-    print('start_date, end_date: ', start_date, end_date)
-    print('cc: ', cc)
 
     # build a filter for the AOI
     query = api.filters.and_filter(
@@ -53,16 +50,23 @@ def search(geometry, start_date, end_date, cc):
 
 
 def download_tif_files(q_result,
-                       dir_path='/Users/guyyehezkel/Desktop/InformationSystems/third_year/finalProject/'
-                                'Final_project/data_utils/searches/'):
-    print(os.path.abspath(os.getcwd()))
+                       dir_path='/searches/'):
+    """
+    This function get all assets from Planet API based on given input.
+    For each tiff file returned from the search, the function creates a folder with the property's id name,
+    and stores the json file, the tiff file and a folder containing tiles of the tiff.
+    :param q_result: query result from Plant API based on user input.
+    :param dir_path:path to the directory you want the search will be saved in.
+    """
+    print("creating new dir in /data_utils/searchers/ named current time")
 
     num_returned_obj = len(q_result.get())
 
-    save_dir = dir_path + str(datetime.datetime.now())
+    save_dir = os.path.abspath(os.getcwd()) + dir_path + str(datetime.datetime.now())
 
     os.mkdir(save_dir)
 
+    print("call planet api to get query result that given as input")
     res = q_result.items_iter(num_returned_obj)
 
     # q_result_items is items_iter who returns an iterator over API response pages
@@ -83,37 +87,32 @@ def download_tif_files(q_result,
             json.dump(item, json_file)
 
         # each item is a GeoJSON feature
-        print(item)
-        for k, v in item.items():
-            print(k)
-            print(v)
-            print("==========================================================================")
-        print("Item ID: ".format(item['id']))
+        print("Get Item ID: ".format(item['id']))
 
         assets = client.get_assets(item).get()
         client.activate(assets['ortho_visual'])
 
+        # wait until activation completes
+        while True:
+            assets = client.get_assets(item).get()
+            # if assets["ortho_visual"].has_key("location"):
+            if "location" in assets["ortho_visual"]:
+                break
+            print("waiting 10 sec before checking activation status again")
+            time.sleep(10)
+
+        print(item['geometry']['coordinates'])
+        coordinates = item['geometry']['coordinates']
+
         callback = api.write_to_file(directory=item_dir_name)
 
-        # print(type(assets))
-        for k, v in assets['ortho_visual'].items():
-            print(k)
-            print(v)
-            print("==========================================================================")
-
-        # print(assets['ortho_visual']['status'])
-
-        # while assets['ortho_visual']['status'] != "active":
-        #     print("activation status is: " + assets['ortho_visual']['status'] + ". waiting to be in 'active' status.")
-        #     time.sleep(10)
-
         body = client.download(assets['ortho_visual'], callback=callback)
-        body.wait
+        body.wait()
 
         while not glob.glob(item_dir_name + "/*.tif"):
             time.sleep(2)
             reload_directory(item_dir_name)
-            print("waiting")
+            print("waiting 2 sec for the tiff file to be created")
 
         # Iterate through all files in the directory
         for filename in os.listdir(item_dir_name):
@@ -121,12 +120,13 @@ def download_tif_files(q_result,
             # Check if the file is an image file
             if filename.endswith('.tif'):
                 full_path_tif = item_dir_name + "/" + filename
-                split_image(image_path=full_path_tif, tile_size=256)
+                split_image(image_path=full_path_tif, tile_size=256, coordinates=coordinates)
 
 
 def reload_directory(directory):
     """
     Reload the contents of the given directory from disk.
+    :param directory: path to directory
     """
     # get a list of all files and directories in the directory
     files = os.listdir(directory)
@@ -140,16 +140,16 @@ def reload_directory(directory):
             reload_directory(full_path)
 
 
-def split_image(image_path, tile_size):
+def split_image(image_path, tile_size, coordinates):
     """
-    Split a large image into smaller tiles.
-
+    Split a large tiff image into smaller jpeg tiles.
+    For each tile a folder is created with the name of the tile's relative position within the large image.
+    ֿIn this folder two files are created: a 256*256 jpeg file of the tile and
+    a json file containing the real world coordinates of the tile
     Parameters:
-    image_path (str): The path to the TIF image.
-    tile_size (int): The size of the tiles to split the image into.
-
-    Returns:
-    None
+    :param image_path: (str): The path to the TIF image.
+    :param tile_size: (int): The size of the tiles to split the image into.
+    :param coordinates: list contains the coordinates of the large tiff image
     """
     # Open the image
     image = Image.open(image_path)
@@ -176,43 +176,28 @@ def split_image(image_path, tile_size):
             # Crop the tile from the image
             tile = image.crop((x_pos, y_pos, x_pos + tile_size, y_pos + tile_size))
 
+            # Create a new directory to save the tiles
+            # os.makedirs(file_dir + "/tiles", exist_ok=True)
+            os.makedirs(f"{file_dir}/tiles/tile_{x}_{y}", exist_ok=True)
+
             # Save the tile
-            tile.convert('RGB').save(f"{file_dir}/tiles/tile_{x}_{y}.jpg", 'JPEG', quality=100)
+            tile.convert('RGB').save(f"{file_dir}/tiles/tile_{x}_{y}/tile_{x}_{y}.jpg", 'JPEG', quality=100)
 
+            # Calculate the coordinates of the tile in the world
+            tile_left = coordinates[0][0][0] + (x_pos / width) * (coordinates[0][1][0] - coordinates[0][0][0])
+            tile_right = coordinates[0][0][0] + ((x_pos + tile_size) / width) * (
+                    coordinates[0][1][0] - coordinates[0][0][0])
+            tile_top = coordinates[0][0][1] + (y_pos / height) * (coordinates[0][2][1] - coordinates[0][0][1])
+            tile_bottom = coordinates[0][0][1] + ((y_pos + tile_size) / height) * (
+                    coordinates[0][2][1] - coordinates[0][0][1])
+            tile_coordinates = [[
+                [tile_left, tile_top],
+                [tile_right, tile_top],
+                [tile_right, tile_bottom],
+                [tile_left, tile_bottom],
+                [tile_left, tile_top]
+            ]]
+            # Save the coordinates of the tile in a JSON file
+            with open(f"{file_dir}/tiles/tile_{x}_{y}/tile_{x}_{y}.json", 'w') as f:
+                json.dump(tile_coordinates, f)
 
-
-
-# =======================================================================================================#
-#                                     Previous Helper functions                                         #
-# =======================================================================================================#
-
-def wait_until(predicate, timeout, period=0.25, *args, **kwargs):
-    mustend = time.time() + timeout
-    while time.time() < mustend:
-        if predicate(*args, **kwargs): return True
-        time.sleep(period)
-    return False
-
-def download_jpeg_files(
-        dir_path='/Users/guyyehezkel/Desktop/InformationSystems/third_year/'
-                 'finalProject/Final_project/data_utils/tif_files'):
-    print(os.path.abspath(os.getcwd()))
-
-    # Iterate through all files in the directory
-    for filename in os.listdir(dir_path):
-
-        # Check if the file is an image file
-        if filename.endswith('.tif'):
-            full_path_tif = dir_path + "/" + filename
-
-            # Open the TIFF file
-            with Image.open(full_path_tif) as tiff_image:
-                # Resize the image to reduce its dimensions
-                resized_image = tiff_image.resize((256, 256))
-
-                dst_jpeg_name = '/Users/guyyehezkel/Desktop/InformationSystems/third_year/finalProject/Final_project/data_utils/jpeg_files/' + filename + '.jpg'
-
-                # Convert the image to JPEG format
-                resized_image.convert('RGB').save(dst_jpeg_name, 'JPEG', quality=100)
-
-    print("end successfully!")

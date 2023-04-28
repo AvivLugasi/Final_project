@@ -125,8 +125,8 @@ map.on('load', function(){
             var convertedData = 'text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(data));
             var currentTime = new Date().getTime();
             var filename = 'data_' + currentTime + '.geojson';
-            var fileUrl = 'file:///Users/guyyehezkel/Desktop/InformationSystems/third_year/finalProject/Final_project/gui/searchers/' + filename;
-            document.getElementById('export').setAttribute('href', fileUrl);
+            // var fileUrl = 'file:///Users/guyyehezkel/Desktop/InformationSystems/third_year/finalProject/Final_project/gui/searchers/' + filename;
+            document.getElementById('export').setAttribute('href', 'data:' + convertedData);
             document.getElementById('export').setAttribute('download', filename);
             // Create export
             // document.getElementById('export').setAttribute('href', 'data:' + convertedData);
