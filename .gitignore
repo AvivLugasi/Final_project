@@ -1,0 +1,16 @@
+# boat detection dataset
+datasets/boat_detection/
+
+# temp dataset of marine debris
+datasets/marine_debris_detection/roboflow_marine_debris_input/
+datasets/marine_debris_detection/original_dataset/
+datasets/marine_debris_detection/label_studio_export/
+datasets/marine_debris_detection/SemamticModels/
+
+# pychace and weights of models(exluding the best model)
+Models/SementicModels/__pycache__/
+Models/SementicModels/best_model_efficientnetb3_1.h5
+Models/SementicModels/best_model_efficientnetb7_1.h5
+Models/SementicModels/best_model_inceptionresnetv2_1.h5
+Models/SementicModels/best_model_resnet50_1.h5
+Models/SementicModels/best_model_vgg19_1.h5
