@@ -15,7 +15,7 @@ class ModelDeployment:
     """Create deployment of the model"""
     def __init__(self,
                  model_name: str = "efficientnetb4",
-                 model_weights_path: str = "/content/drive/MyDrive/Final_project/Models/SementicModels/best_model_efficientnetb4_1.h5",
+                 model_weights_path: str = "best_model_efficientnetb4_1.h5",
                  num_of_instances: int = multiprocessing.cpu_count()
                  ):
         """
