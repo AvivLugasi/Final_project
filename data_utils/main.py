@@ -1,7 +1,7 @@
 from googleapiclient.errors import HttpError
 
 from data_utils.get_planet_scenes import search, download_tif_files, split_image
-from gui.utils_function import extract_geometry_from_json
+from gui.utils_function import extract_geometry_timerange_from_json
 
 
 def main():

@@ -1,25 +1,51 @@
 import json
 
 
-def extract_geometry_from_json(path_to_json):
+def parse_date_time(date_time_str: str):
+    """
+    parse the date and time components of a date time string and return them as a list
+    :param date_time_str: datetime string in the following format: 'YYYY-MM-DD HH:MM'
+    :return: list of date time components of this format [year, month, day, hour, minute]
+    """
+    date_time_splited = date_time_str.split(" ")
+    date_components_splited = date_time_splited[0].split("-")
+    time_components_splited = date_time_splited[1].split(":")
+
+    return [int(date_components_splited[0]), int(date_components_splited[1]), int(date_components_splited[2]),
+            int(time_components_splited[0]), int(time_components_splited[1])]
+
+
+def extract_geometry_timerange_from_json(path_to_json):
     """
     This function get as input path to json file was download from our web ui,
-    then extract type and cordinates and return an variable which is input to the method "search" on data utils.
+    then extract type cordinates and time range and return a variable which is input to the method "search" on data utils.
     :param path_to_json:
     :return: dictionary that using as input to search method in /data_utils/get_planet_scenes.py
     """
     with open(path_to_json) as f:
         json_data = json.load(f)
 
-    geometry_data = json_data['features'][0]['geometry']
-
-    geometry = {
-        "type": geometry_data['type'],
-        "coordinates": geometry_data['coordinates'],
+    search_data = json_data['features'][0]['geometry']
+    start_date_time = parse_date_time(date_time_str=json_data['features'][0]['properties']['selectedDateRange']['start'])
+    end_date_time = parse_date_time(date_time_str=json_data['features'][0]['properties']['selectedDateRange']['end'])
+    search_dict = {
+        "type": search_data['type'],
+        "coordinates": search_data['coordinates'],
+        "time_range": {
+            "start_date_time": create_time_string(year=start_date_time[0],
+                                                  month=start_date_time[1],
+                                                  day=start_date_time[2],
+                                                  hour=start_date_time[3],
+                                                  minute=start_date_time[4])
+            , "end_date_time": create_time_string(year=end_date_time[0],
+                                                  month=end_date_time[1],
+                                                  day=end_date_time[2],
+                                                  hour=end_date_time[3],
+                                                  minute=end_date_time[4])},
         "size": 256,
         "output_format": "jpeg"
     }
-    return geometry
+    return search_dict
 
 
 def create_time_string(year: int, month: int, day: int, hour: int = 0, minute: int = 0):
@@ -37,12 +63,12 @@ def create_time_string(year: int, month: int, day: int, hour: int = 0, minute: i
 
 
 def main():
-    # j_path = "aoi_jason_files/data_1682595028543.geojson"
-    # geometry = extract_geometry_from_json(j_path)
-    # print(geometry)
+    j_path = "D:/Downloads/data_1682785129202.geojson"
+    geometry = extract_geometry_timerange_from_json(j_path)
+    print(geometry)
     gte = create_time_string(year=2016, month=10, day=8, hour=10, minute=10)
     print(gte)
-    # "2016-10-08T00:00:00Z"
+    "2016-10-08T00:00:00Z"
 
 
 if __name__ == "__main__":
