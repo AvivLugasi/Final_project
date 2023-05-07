@@ -45,7 +45,8 @@ def search(geometry, start_date, end_date, cc=0.5):
 
     # this will cause an exception if there are any API related errors
     results = client.quick_search(request)
-
+    if not results:
+        print("no results where been found for the requested time and/or coordinates")
     return results
 
 
@@ -62,9 +63,10 @@ def download_tif_files(q_result,
 
     num_returned_obj = len(q_result.get())
 
-    save_dir = os.path.abspath(os.getcwd()) + dir_path + str(datetime.datetime.now())
+    save_dir = os.path.abspath(os.getcwd()).replace("\\", "/") \
+               + dir_path + str(datetime.datetime.now()).replace(" ", "_").replace(":", "-")
 
-    os.mkdir(save_dir)
+    os.makedirs(save_dir)
 
     print("call planet api to get query result that given as input")
     res = q_result.items_iter(num_returned_obj)
@@ -200,4 +202,3 @@ def split_image(image_path, tile_size, coordinates):
             # Save the coordinates of the tile in a JSON file
             with open(f"{file_dir}/tiles/tile_{x}_{y}/tile_{x}_{y}.json", 'w') as f:
                 json.dump(tile_coordinates, f)
-

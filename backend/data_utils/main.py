@@ -1,11 +1,10 @@
 from googleapiclient.errors import HttpError
 
-from data_utils.get_planet_scenes import search, download_tif_files, split_image
-from gui.utils_function import extract_geometry_timerange_from_json
+from get_planet_scenes import search, download_tif_files, split_image
+from utils_function import extract_geometry_timerange_from_json
 
 
 def main():
-    print("Hello World!")
     geometry = {
         "type": "Polygon",
         # "coordinates": [
@@ -117,9 +116,12 @@ def main():
     gte = "2016-10-08T00:00:00Z"
     lte = "2016-10-09T00:00:00Z"
 
-    # geometry = extract_geometry_from_json("../gui/aoi_jason_files/data_1682595028543.geojson")
-
-    q_res = search(geometry, gte, lte, max_cloud_percentage)
+    geometry_json, start_date_time_formatted, end_date_time_formatted = extract_geometry_timerange_from_json("D:/Downloads/data_1683388714600.geojson")
+    # print(input_json["coordinates"])
+    # print(input_json["time_range"]["start_date_time"])
+    # print(input_json["time_range"]["end_date_time"])
+    q_res = search(geometry=geometry, start_date=gte
+                   , end_date=lte, cc=max_cloud_percentage)
     download_tif_files(q_res)
 
     from pydrive.auth import GoogleAuth

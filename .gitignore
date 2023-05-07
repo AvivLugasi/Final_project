@@ -14,3 +14,6 @@ Models/SementicModels/best_model_efficientnetb7_1.h5
 Models/SementicModels/best_model_inceptionresnetv2_1.h5
 Models/SementicModels/best_model_resnet50_1.h5
 Models/SementicModels/best_model_vgg19_1.h5
+
+# planet search results
+backend/data_utils/searches/
