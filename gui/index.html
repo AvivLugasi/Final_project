@@ -25,7 +25,7 @@
     <!-- Json editor -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.1.4/jsoneditor.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.1.4/jsoneditor.min.js"></script>
-
+    <!-- upload geojson-->
     <style>
         body { margin:0; padding:0; }
         #map { position:absolute; top:0; bottom:0; width:100%; }
@@ -89,6 +89,35 @@
             height: 650px;
             width: 450px;
         }
+        #upload-form {
+          position: absolute;
+          top: 20px;
+          right: 20px;
+        }
+        #upload-form input[type="file"] {
+          margin-bottom: 10px;
+        }
+        #upload-form button {
+          position: absolute;
+          top: 35px;
+          left: 10px;
+          z-index: 1;
+        }
+        .circle-animation {
+          animation-name: circle;
+          animation-duration: 3s;
+          animation-fill-mode: forwards;
+          animation-timing-function: linear;
+        }
+
+        @keyframes circle {
+          0% {
+            box-shadow: none;
+          }
+          100% {
+            box-shadow: 0 0 0 10px rgba(0, 0, 0, 0.5);
+          }
+        }
 </style>
 </head>
 <body>
@@ -97,12 +126,27 @@
       <a href='#' id='export'><span class="material-symbols-outlined">save</span></a>
       <span class="input-group-text">Coordinates</span>
       <div class="code-input" id="geojson_input"></div>
+      <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" id="geojson-file" accept=".geojson" />
+        <button type="button" onclick="uploadGeoJSON()" id="upload-form button">Upload</button>
+      </form>
 
 <script>
-/*
-* <textarea class="code-input" id="geojson_input" title="coordinates"  rows="4" cols="50"
-                placeholder="enter geojson geometry"></textarea>
-* */
+function uploadGeoJSON() {
+      var fileInput = document.getElementById('geojson-file');
+      var file = fileInput.files[0];
+
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var contents = e.target.result;
+        var jsonData = JSON.parse(contents);
+
+        // Do something with the GeoJSON data
+        console.log(jsonData);
+      };
+
+      reader.readAsText(file);
+    }
 
 var container = document.getElementById("geojson_input");
 var geojson_input = new JSONEditor(container);
@@ -146,8 +190,9 @@ mapboxgl.accessToken = 'pk.eyJ1IjoiYXZpdmx1Z2FzaSIsImEiOiJjbGgxM28yNHIwemtrM3JwZ
 var map = new mapboxgl.Map({
     container: 'map', // container id
     style: 'mapbox://styles/mapbox/streets-v9', //stylesheet location
-    center: [9.096173491685818,39.233140189548976], // starting position
-    zoom: 11, // starting zoom
+    center: [31.46416951226783,
+              33.52349928137136], // starting position
+    zoom: 5, // starting zoom
 });
 var geoJsonFeatures;
 var Draw = mapboxgl.Draw();
@@ -212,6 +257,14 @@ map.on('load', function(){
             // Create export
             // document.getElementById('export').setAttribute('href', 'data:' + convertedData);
             // document.getElementById('export').setAttribute('download','data.geojson');
+            alert("Geojson was downloaded successfully, and can be send\n" +
+                "to the model using the upload button on the top right corner");
+            var submitButton = document.querySelector('#upload-form button');
+            submitButton.classList.add('circle-animation');
+
+            setTimeout(function() {
+                submitButton.classList.remove('circle-animation');
+            }, 3000);
 
         } else {
             alert("Wouldn't you like to draw some data?");
@@ -260,7 +313,6 @@ function uploadFeatures(){
     };
     }
 }
-
 </script>
 
 </body>
