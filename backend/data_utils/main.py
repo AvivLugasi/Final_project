@@ -4,7 +4,7 @@ from get_planet_scenes import search, download_tif_files, split_image
 from utils_function import extract_geometry_timerange_from_json
 
 
-def main():
+def main(jsone_file):
     geometry = {
         "type": "Polygon",
         # "coordinates": [
@@ -82,28 +82,28 @@ def main():
         # ],
         #Haifa to TLV
         "coordinates": [
-          [
             [
-              35.07196544242973,
-              33.09947285384341
-            ],
-            [
-              34.92727736713181,
-              33.09947285384341
-            ],
-            [
-              34.92727736713181,
-              32.83132116117066
-            ],
-            [
-              35.07196544242973,
-              32.83132116117066
-            ],
-            [
-              35.07196544242973,
-              33.09947285384341
+                [
+                    -87.1380615234375,
+                    16.06692895745011
+                ],
+                [
+                    -87.1380615234375,
+                    16.06165029151658
+                ],
+                [
+                    -87.132568359375,
+                    16.06165029151658
+                ],
+                [
+                    -87.132568359375,
+                    16.06692895745011
+                ],
+                [
+                    -87.1380615234375,
+                    16.06692895745011
+                ]
             ]
-          ]
         ],
         "size": 256,
         "output_format": "jpeg"
@@ -117,12 +117,14 @@ def main():
     lte = "2016-10-09T00:00:00Z"
 
     geometry_json, start_date_time_formatted, end_date_time_formatted = extract_geometry_timerange_from_json("D:/Downloads/data_1683388714600.geojson")
-    # print(input_json["coordinates"])
-    # print(input_json["time_range"]["start_date_time"])
-    # print(input_json["time_range"]["end_date_time"])
-    q_res = search(geometry=geometry, start_date=gte
-                   , end_date=lte, cc=max_cloud_percentage)
-    download_tif_files(q_res)
+    q_res = search(geometry=geometry_json, start_date=start_date_time_formatted
+                   , end_date=end_date_time_formatted, cc=max_cloud_percentage)
+    search_folder = download_tif_files(q_res)
+
+
+
+
+
 
     from pydrive.auth import GoogleAuth
     from pydrive.drive import GoogleDrive

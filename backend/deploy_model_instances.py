@@ -16,7 +16,8 @@ class ModelDeployment:
     def __init__(self,
                  model_name: str = "efficientnetb4",
                  model_weights_path: str = "best_model_efficientnetb4_1.h5",
-                 num_of_instances: int = multiprocessing.cpu_count()
+                 num_of_instances: int = multiprocessing.cpu_count(),
+                 threshold: float = 0.5
                  ):
         """
         Create a deployment object, which initialize 'num_of_instances' instances of the\n
@@ -27,12 +28,14 @@ class ModelDeployment:
             model_weights_path (str): path to the folder that contain the model weights.
             num_of_instances (int): number of instances to create,<br>
                 were the default is as the number of available threads.
+            threshold(float): threshold for classifing pixel to either background or debris.
         """
         self.model_name = model_name
         self.model_weights_path = model_weights_path
         self.num_of_instances = num_of_instances
         self.models_list = self.create_model_instance()
         self.lock = threading.Lock()
+        self.threshold = threshold
 
     def create_model_instance(self):
         """
@@ -93,7 +96,10 @@ class ModelDeployment:
                                 and the second is the predicted debris in it.
         """
         for result in results_list:
-            self.visualize(image=result[0], predicted_mask=result[1])
+            if result[2] == 1:
+                file_name = os.path.basename(result[3])
+                print(file_name)
+                self.visualize(image=result[0], prediction=result[1])
 
     def draw_debris_contours(self, mask, image):
         """
@@ -129,16 +135,21 @@ class ModelDeployment:
         """
         image = np.expand_dims(image, axis=0)
         pr_mask = model.predict(image).round()
-        pr_mask = np.where(pr_mask > 0, 255, pr_mask)
+        pr_mask = np.where(pr_mask > self.threshold, 255, 0.0)
         return pr_mask[..., 0].squeeze()
 
     def thread_predict(self, model, images, results_list):
         """ function to run predict() and visualize() for a batch of images"""
         for image in images:
-            prediction = self.predict(model, image)
-            prediction = self.draw_debris_contours(mask=prediction, image=image)
+            model_input = self.pre_process(image["image"])
+            prediction = self.predict(model, model_input)
+            detected = 0
+            # if the model predicted any debris in the image
+            if len(np.unique(prediction)) == 2:
+                detected = 1
+                prediction = self.draw_debris_contours(mask=prediction, image=model_input)
             with self.lock:
-                results_list.append([image, prediction])
+                results_list.append([model_input, prediction, detected, image["image_path"]])
 
     def execute_job(self, input_data):
         """

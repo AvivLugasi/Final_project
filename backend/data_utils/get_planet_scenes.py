@@ -124,6 +124,8 @@ def download_tif_files(q_result,
                 full_path_tif = item_dir_name + "/" + filename
                 split_image(image_path=full_path_tif, tile_size=256, coordinates=coordinates)
 
+        return save_dir
+
 
 def reload_directory(directory):
     """
