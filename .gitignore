@@ -16,4 +16,7 @@ Models/SementicModels/best_model_resnet50_1.h5
 Models/SementicModels/best_model_vgg19_1.h5
 
 # planet search results
-backend/data_utils/searches/
+app/data_utils/searches/
+app/searches/
+app/static/images/
+app/static/predictions/

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>Dashboard</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+     <!-- github icon-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300&display=swap" rel="stylesheet">
+<style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #FCFBF8;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        main {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        input[type="file"] {
+            margin-bottom: 20px;
+        }
+
+        #image-preview {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        #image-preview img {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            margin: 10px;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    nav {
+            background-color: #f2f2f2;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline-block;
+        }
+
+        nav ul li a {
+            display: block;
+            padding: 10px 20px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        nav ul li a:hover {
+            background-color: #ddd;
+        }
+       #upload-form {
+            position: relative;
+            display: inline-block;
+            margin-top: 10px;
+        }
+
+        #upload-form button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #upload-form button:hover {
+              background-color: #45a049;
+        }
+</style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="/">Tool</a></li>
+            <li><a href="/Dashboard">Dashboard</a></li>
+            <li><a href="https://gyehezke.wordpress.com/" target="_blank">About The Project</a></li>
+            <li><a href="https://gyehezke.wordpress.com/contact/" target="_blank">Contact</a></li>
+            <li><a href="https://github.com/AvivLugasi/Final_project" target="_blank" class="github-icon"><i class="fab fa-github"></i></a></li>
+        </ul>
+    </nav>
+    <form id="upload-form" onsubmit="predict(event)" action="http://127.0.0.1:5000/predict">
+        <button type="submit" id="upload-button">Predict</button>
+        <div id="loading-animation" style="display: none;">
+            <img src="../static/loading_animation.gif" alt="Loading..." width="1000px" height="600px" style="margin-left:400px"/>
+        </div>
+    </form>
+    <main id="image-preview"></main>
+<script>
+  fetch('/get_images')
+    .then(response => response.json())
+    .then(data => {
+      const previewContainer = document.getElementById('image-preview');
+      data.forEach(image => {
+        const imgContainer = document.createElement('div'); // Create a container for the image and name
+        const img = document.createElement('img');
+        img.src = image.image_url;
+        const imageName = document.createElement('p'); // Create a paragraph element for the image name
+        imageName.textContent = image.image_name; // Set the text content to the image name
+
+        // Add a click event listener to show the coordinates
+        img.addEventListener('click', () => {
+          showCoordinates(image.coordinates);
+        });
+
+        imgContainer.appendChild(img);
+        imgContainer.appendChild(imageName);
+        previewContainer.appendChild(imgContainer);
+      });
+    })
+    .catch(error => console.error(error));
+
+  function predict() {
+    // Show the loading animation
+    document.getElementById('loading-animation').style.display = 'block';
+
+    // Send the form data
+    var form = document.getElementById('upload-form');
+    var formData = new FormData(form);
+    fetch('http://127.0.0.1:5000/predict', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        // Hide the loading animation
+        document.getElementById('loading-animation').style.display = 'none';
+
+        // Handle the response
+        if (response.ok) {
+            return response.text();
+        } else {
+            throw new Error('Error: ' + response.status);
+        }
+    })
+    .then(data => {
+        // Process the data
+        console.log(data);
+    })
+    .catch(error => {
+        // Handle errors
+        console.error(error);
+    });
+}
+</script>
+</body>
+</html>
