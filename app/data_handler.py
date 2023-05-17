@@ -1,6 +1,6 @@
 import os
 from skimage import io
-
+import json
 
 def data_load(path_to_search_result):
     """
@@ -22,11 +22,19 @@ def data_load(path_to_search_result):
             for tile_folder in os.listdir(item_path + "/tiles/"):
                 tile_path = item_path + "/tiles/" + tile_folder + "/"
 
-                for tile in os.listdir(tile_path):
-                    if '.jpg' in tile and "prediction" not in tile:
-                        image_path = os.path.join(tile_path, tile)
+                for tile_resource in os.listdir(tile_path):
+                    if '.jpg' in tile_resource and "prediction" not in tile_resource:
+                        image_path = os.path.join(tile_path, tile_resource)
                         image = io.imread(image_path)
-                        model_input.append({"image": image, "image_path": image_path})
+                        # this is the json with the coordinates
+                        json_name = tile_resource[:-4] + '.json'
+                        json_path = os.path.join(tile_path, json_name)
+                        with open(json_path, 'r') as file:
+                            coordinates = json.load(file)
+                        model_input.append({
+                                        "image": image,
+                                        "image_path": image_path,
+                                        "coordinates": coordinates})
     return model_input
 
 
@@ -47,5 +55,9 @@ def writing_results(results_list, path_to_predictions):
             prediction_name = image_name[:-4] + 'prediction.jpg'
             prediction_path = os.path.join(path_to_predictions, prediction_name)
             image_path = os.path.join(path_to_predictions, image_name)
+            json_name = image_name[:-4] + '.json'
+            json_path = os.path.join(path_to_predictions, json_name)
             io.imsave(image_path, result[0])
             io.imsave(prediction_path, result[1])
+            with open(json_path, "w") as jc:
+                json.dump(result[4], jc)

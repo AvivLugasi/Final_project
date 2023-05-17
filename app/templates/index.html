@@ -94,17 +94,11 @@
         }
         #upload-form {
           position: absolute;
-          top: 60px;
-          right: 20px;
+          top: 2px;
+          right: 10%;
         }
-        #upload-form input[type="file"] {
-          margin-bottom: 10px;
-        }
-        #upload-form button {
-          position: absolute;
-          top: 35px;
-          left: 10px;
-          z-index: 1;
+        #upload-form button:hover {
+          background-color: #DEE0E0;
         }
         .circle-animation {
           animation-name: circle;
@@ -124,6 +118,9 @@
 
         nav {
             background-color: #f2f2f2;
+            position: fixed;
+            top: 0;
+             width: 100%;
         }
 
         nav ul {
@@ -157,16 +154,18 @@
             <li><a href="https://gyehezke.wordpress.com/" target="_blank">About The Project</a></li>
             <li><a href="https://gyehezke.wordpress.com/contact/" target="_blank">Contact</a></li>
             <li><a href="https://github.com/AvivLugasi/Final_project" target="_blank" class="github-icon"><i class="fab fa-github"></i></a></li>
+            <li>
+                <form id="upload-form" action="http://127.0.0.1:5000/upload_geojson" method="post" enctype="multipart/form-data">
+                    <input type="file" id="geojson-file" accept=".geojson" name="geojsonFile"/>
+                    <button  type="submit"  id="upload-form button">Upload Parameters file</button>
+                </form>
+            </li>
         </ul>
     </nav>
       <a href='#' id='datepicker'><span class="material-symbols-outlined">date_range</span></a>
       <a href='#' id='export'><span class="material-symbols-outlined">save</span></a>
       <span class="input-group-text">Coordinates</span>
       <div class="code-input" id="geojson_input"></div>
-      <form id="upload-form" action="http://127.0.0.1:5000/upload_geojson" method="post" enctype="multipart/form-data">
-        <input type="file" id="geojson-file" accept=".geojson" name="geojsonFile"/>
-        <button  type="submit"  id="upload-form button">Upload</button>
-      </form>
 
 <script>
  function uploadGeoJSON() {
@@ -204,24 +203,24 @@ var geojson_input = new JSONEditor(container);
 var initialData = {
   "coordinates":[
                 [
-                    -87.1380615234375,
-                    16.06692895745011
+                    -86.4898681640625,
+                    16.436085175129968
                 ],
                 [
-                    -87.1380615234375,
-                    16.06165029151658
+                   -86.4898681640625,
+                    16.43081641246508
                 ],
                 [
-                    -87.132568359375,
-                    16.06165029151658
+                    -86.484375,
+                    16.43081641246508
                 ],
                 [
-                    -87.132568359375,
-                    16.06692895745011
+                   -86.484375,
+                    16.436085175129968
                 ],
                 [
-                    -87.1380615234375,
-                    16.06692895745011
+                    -86.4898681640625,
+                    16.436085175129968
                 ]
             ]
 };

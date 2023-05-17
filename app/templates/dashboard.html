@@ -36,20 +36,34 @@
         }
 
         #image-preview {
-            display: flex;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: auto auto auto;
+            padding: 10px;
         }
 
         #image-preview img {
-            width: 200px;
-            height: 200px;
+            width: 265px;
+            height: 265px;
             object-fit: cover;
             margin: 10px;
             border: 1px solid #ccc;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 5px;
+            padding: 20px;
+            font-size: 30px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            cursor: zoom-in;
+        }
+        #image-preview img.zoomed{
+            cursor: zoom-out;
+            transform: scale(2);
         }
     nav {
             background-color: #f2f2f2;
+            position: fixed;
+            top: 0;
+            width: 100%;
         }
 
         nav ul {
@@ -75,7 +89,10 @@
        #upload-form {
             position: relative;
             display: inline-block;
-            margin-top: 10px;
+            margin-top: 40px;
+            margin-bottom: 40px;
+            margin-left: 45%;
+            justify-content: center;
         }
 
         #upload-form button {
@@ -107,36 +124,54 @@
             <li><a href="https://github.com/AvivLugasi/Final_project" target="_blank" class="github-icon"><i class="fab fa-github"></i></a></li>
         </ul>
     </nav>
-    <form id="upload-form" onsubmit="predict(event)" action="http://127.0.0.1:5000/predict">
-        <button type="submit" id="upload-button">Predict</button>
-        <div id="loading-animation" style="display: none;">
+<!--    <form id="upload-form" onsubmit="predict(event)" action="http://127.0.0.1:5000/predict">-->
+<!--        <label>Select a search for inference:</label><br>-->
+<!--        {% for search_folder_name in searches_folder_names %}-->
+<!--            <input type="radio" name="folder" value="{{ search_folder_name }}">-->
+<!--            <label>{{ search_folder_name }}</label><br>-->
+<!--        {% endfor %}-->
+<!--        <button type="submit" id="upload-button">Predict</button>-->
+<!--    </form>-->
+    <form id="upload-form" action="http://127.0.0.1:5000/predict">
+    <label>Select a search for inference:</label><br>
+    {% for search_folder_name in searches_folder_names %}
+        <input type="radio" name="folder" value="{{ search_folder_name }}">
+        <label>{{ search_folder_name }}</label><br>
+    {% endfor %}
+    <button type="submit" id="upload-button">Predict</button>
+</form>
+    <div id="loading-animation" style="display: none;">
             <img src="../static/loading_animation.gif" alt="Loading..." width="1000px" height="600px" style="margin-left:400px"/>
-        </div>
-    </form>
+    </div>
     <main id="image-preview"></main>
 <script>
-  fetch('/get_images')
-    .then(response => response.json())
-    .then(data => {
-      const previewContainer = document.getElementById('image-preview');
-      data.forEach(image => {
-        const imgContainer = document.createElement('div'); // Create a container for the image and name
-        const img = document.createElement('img');
-        img.src = image.image_url;
-        const imageName = document.createElement('p'); // Create a paragraph element for the image name
-        imageName.textContent = image.image_name; // Set the text content to the image name
+    function downloadGeoJSON(coordinates) {
+        // Create a GeoJSON object
+        var geojson = {
+          type: "Feature",
+          geometry: {
+            type: "Polygon",
+            coordinates: [coordinates]
+          }
+        };
 
-        // Add a click event listener to show the coordinates
-        img.addEventListener('click', () => {
-          showCoordinates(image.coordinates);
-        });
+        // Convert the GeoJSON object to a string
+        var geojsonStr = JSON.stringify(geojson, null, 2);
 
-        imgContainer.appendChild(img);
-        imgContainer.appendChild(imageName);
-        previewContainer.appendChild(imgContainer);
-      });
-    })
-    .catch(error => console.error(error));
+        // Create a Blob with the GeoJSON string
+        var blob = new Blob([geojsonStr], {type: "application/json"});
+
+        // Create a download URL for the Blob
+        var url = URL.createObjectURL(blob);
+
+        // Create a temporary link element
+        var link = document.createElement("a");
+        link.href = url;
+        link.download = "coordinates.geojson";
+
+        // Simulate a click on the link to trigger the download
+        link.click();
+  }
 
   function predict() {
     // Show the loading animation
@@ -145,6 +180,7 @@
     // Send the form data
     var form = document.getElementById('upload-form');
     var formData = new FormData(form);
+    console.log(formData)
     fetch('http://127.0.0.1:5000/predict', {
         method: 'POST',
         body: formData
@@ -163,12 +199,51 @@
     .then(data => {
         // Process the data
         console.log(data);
+         fetch('/get_images')
+    .then(response => response.json())
+    .then(data => {
+      const previewContainer = document.getElementById('image-preview');
+      data.forEach(image => {
+        const imgContainer = document.createElement('div');
+        const img = document.createElement('img');
+        img.src = image.image_url;
+        img.addEventListener('click', function() {
+          img.classList.toggle('zoomed');
+        });
+        const imageName = document.createElement('p');
+        imageName.textContent = image.image_name.replace(".jpg", "");
+        imgContainer.appendChild(img);
+        imgContainer.appendChild(imageName);
+        previewContainer.appendChild(imgContainer);
+        if (image.image_name.includes("prediction")) {
+            const downloadBtn = document.createElement('button');
+            downloadBtn.textContent = 'Download Coordinates';
+            downloadBtn.textContent = 'Download Coordinates';
+            downloadBtn.style.width = '120px';
+            downloadBtn.style.height = '30px';
+            downloadBtn.style.fontSize = '12px';
+            downloadBtn.style.marginTop = '100px';
+            downloadBtn.addEventListener('click', () => {
+                downloadGeoJSON(image.image_coordinates);
+            });
+            const btnContainer = document.createElement('div');
+            btnContainer.appendChild(downloadBtn);
+            previewContainer.appendChild(btnContainer);
+        }
+      });
+    })
+    .catch(error => console.error(error));
     })
     .catch(error => {
         // Handle errors
         console.error(error);
     });
 }
+document.getElementById('upload-form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        predict(); // Call the predict function to handle the form submission
+    });
 </script>
 </body>
 </html>

@@ -15,7 +15,7 @@ class ModelDeployment:
     """Create deployment of the model"""
     def __init__(self,
                  model_name: str = "efficientnetb4",
-                 model_weights_path: str = "best_model_efficientnetb4_1.h5",
+                 model_weights_path: str = "best_model_efficientnetb4_4.h5",
                  num_of_instances: int = multiprocessing.cpu_count(),
                  threshold: float = 0.5
                  ):
@@ -149,7 +149,13 @@ class ModelDeployment:
                 detected = 1
                 prediction = self.draw_debris_contours(mask=prediction, image=model_input)
             with self.lock:
-                results_list.append([model_input, prediction, detected, image["image_path"]])
+                results_list.append([
+                                    model_input,
+                                    prediction,
+                                    detected,
+                                    image["image_path"],
+                                    image["coordinates"]
+                                    ])
 
     def execute_job(self, input_data):
         """
