@@ -112,32 +112,38 @@
        </form>
     </div>
     <script>
+        var center = [31.46416951226783,
+              33.52349928137136];
+        const features = [];
+        try {
+            var points = JSON.parse('{{ points | safe }}');
+            center = points[0]
+            points.forEach(point => {
+                const feature = {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Point',
+                        coordinates: point
+                    }
+                };
+
+                // Push the feature to the 'features' array
+                features.push(feature);
+            });
+        }catch (error) {
+          // Code to handle the exception
+          console.error("An error occurred:", error);
+        }
         mapboxgl.accessToken = 'pk.eyJ1IjoiYXZpdmx1Z2FzaSIsImEiOiJjbGgxM28yNHIwemtrM3JwZXl6bWQxb2t3In0.LQrUMFUAPx2MZow_cNndLg';
         const map = new mapboxgl.Map({
             container: 'map',
             // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
             style: 'mapbox://styles/mapbox/outdoors-v12',
-            center: [31.46416951226783,
-              33.52349928137136], // starting position
+            center: center, // starting position
             zoom: 5, // starting zoom
         });
 
         map.on('load', () => {
-            var points = JSON.parse('{{ points | safe }}');
-            const features = [];
-
-              points.forEach(point => {
-                const feature = {
-                  type: 'Feature',
-                  geometry: {
-                    type: 'Point',
-                    coordinates: point
-                  }
-                };
-
-                // Push the feature to the 'features' array
-                features.push(feature);
-              });
               map.addSource('national-park', {
                 type: 'geojson',
                 data: {
