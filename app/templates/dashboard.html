@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset='utf-8' />
-    <title>Dashboard</title>
+    <title>Find Debris</title>
     <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
      <!-- github icon-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
@@ -59,7 +59,7 @@
             cursor: zoom-out;
             transform: scale(2);
         }
-    nav {
+        nav {
             background-color: #f2f2f2;
             position: fixed;
             top: 0;
@@ -112,26 +112,47 @@
         #upload-form button:hover {
               background-color: #45a049;
         }
+        .coordinates_button {
+          display: inline-block;
+          padding: 10px 20px;
+          font-weight: bold;
+          text-align: center;
+          text-decoration: none;
+          border: none;
+          border-radius: 4px;
+          color: #ffffff;
+          background-color: #aaadad;
+          cursor: pointer;
+        }
+
+        /* Hover effect */
+        .coordinates_button:hover {
+          background-color: #888686;
+        }
+
+        /* Active/Pressed effect */
+        .coordinates_button:active {
+          background-color: #003f80;
+        }
+
+        /* Disabled state */
+        .coordinates_button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
 </style>
 </head>
 <body>
     <nav>
         <ul>
-            <li><a href="/">Tool</a></li>
-            <li><a href="/Dashboard">Dashboard</a></li>
+            <li><a href="/">Select Area</a></li>
+            <li><a href="/Find_Debris">Find Debris</a></li>
+             <li><a href="/display_on_map">Display Debris On Map</a></li>
             <li><a href="https://gyehezke.wordpress.com/" target="_blank">About The Project</a></li>
             <li><a href="https://gyehezke.wordpress.com/contact/" target="_blank">Contact</a></li>
             <li><a href="https://github.com/AvivLugasi/Final_project" target="_blank" class="github-icon"><i class="fab fa-github"></i></a></li>
         </ul>
     </nav>
-<!--    <form id="upload-form" onsubmit="predict(event)" action="http://127.0.0.1:5000/predict">-->
-<!--        <label>Select a search for inference:</label><br>-->
-<!--        {% for search_folder_name in searches_folder_names %}-->
-<!--            <input type="radio" name="folder" value="{{ search_folder_name }}">-->
-<!--            <label>{{ search_folder_name }}</label><br>-->
-<!--        {% endfor %}-->
-<!--        <button type="submit" id="upload-button">Predict</button>-->
-<!--    </form>-->
     <form id="upload-form" action="http://127.0.0.1:5000/predict">
     <label>Select a search for inference:</label><br>
     {% for search_folder_name in searches_folder_names %}
@@ -144,6 +165,7 @@
             <img src="../static/loading_animation.gif" alt="Loading..." width="1000px" height="600px" style="margin-left:400px"/>
     </div>
     <main id="image-preview"></main>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 <script>
     function downloadGeoJSON(coordinates) {
         // Create a GeoJSON object
@@ -173,6 +195,99 @@
         link.click();
   }
 
+    function deleteFalsePositive(imageUrl) {
+      // Create an object with the data to send
+      console.log(imageUrl)
+      const data = {
+        imageUrl: imageUrl
+      };
+
+      // Send a POST request to the server
+      fetch('http://127.0.0.1:5000/delete_false_positive', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+        .then(response => {
+          // Handle the response
+          if (response.ok) {
+            // Display a success message or perform any desired action
+            alert("Image deleted successfully");
+            document.getElementById('image-preview').innerHTML = '';
+            get_images();
+          } else {
+            throw new Error('Error: ' + response.status);
+          }
+        })
+        .catch(error => {
+          // Handle errors
+          console.error(error);
+        });
+    }
+    function get_images(){
+    fetch('/get_images')
+    .then(response => response.json())
+    .then(data => {
+      const previewContainer = document.getElementById('image-preview');
+      previewContainer.innerHTML = ''; // Clear existing image containers
+      data.forEach(image => {
+        const imgContainer = document.createElement('div');
+        const img = document.createElement('img');
+        img.src = image.image_url;
+        img.addEventListener('click', function() {
+          img.classList.toggle('zoomed');
+        });
+        const imageName = document.createElement('p');
+        imageName.textContent = image.image_name.replace(".jpg", "");
+        imgContainer.appendChild(img);
+        imgContainer.appendChild(imageName);
+        previewContainer.appendChild(imgContainer);
+        if (image.image_name.includes("prediction")) {
+            const downloadBtn = document.createElement('button');
+            downloadBtn.textContent = 'Download Coordinates';
+            downloadBtn.textContent = 'Download Coordinates';
+            downloadBtn.style.width = '200px';
+            downloadBtn.style.height = '40px';
+            downloadBtn.style.fontSize = '12px';
+            downloadBtn.style.marginTop = '30px';
+            downloadBtn.className = "coordinates_button";
+            downloadBtn.addEventListener('click', () => {
+                downloadGeoJSON(image.image_coordinates);
+            });
+            const btnContainer = document.createElement('div');
+            btnContainer.style.display = "flex";
+            btnContainer.style.flexDirection = "column";
+            btnContainer.style.justifyContent = "center";
+            btnContainer.style.alignItems = "center";
+             // Create the trash can icon
+            const trashIcon = document.createElement('i');
+            trashIcon.className = "fas fa-trash";
+            trashIcon.style.color = "#1f1f1f";
+            trashIcon.style.cursor = "pointer";
+            trashIcon.style.fontSize = "24px";
+            trashIcon.style.marginTop = '20px';
+            trashIcon.addEventListener('click', () => {
+              const confirmDelete = confirm("Are you sure you want to delete the prediction?");
+
+              // If the user confirms deletion
+              if (confirmDelete) {
+                // Send the image URL to the server for deletion
+                  console.log(image.image_url)
+                  deleteFalsePositive(image.image_url);
+              }
+            });
+
+            previewContainer.appendChild(btnContainer);
+            btnContainer.appendChild(downloadBtn);
+            btnContainer.appendChild(trashIcon);
+        }
+      });
+    })
+    .catch(error => console.error(error));
+    }
+
   function predict() {
     // Show the loading animation
     document.getElementById('loading-animation').style.display = 'block';
@@ -198,41 +313,8 @@
     })
     .then(data => {
         // Process the data
-        console.log(data);
-         fetch('/get_images')
-    .then(response => response.json())
-    .then(data => {
-      const previewContainer = document.getElementById('image-preview');
-      data.forEach(image => {
-        const imgContainer = document.createElement('div');
-        const img = document.createElement('img');
-        img.src = image.image_url;
-        img.addEventListener('click', function() {
-          img.classList.toggle('zoomed');
-        });
-        const imageName = document.createElement('p');
-        imageName.textContent = image.image_name.replace(".jpg", "");
-        imgContainer.appendChild(img);
-        imgContainer.appendChild(imageName);
-        previewContainer.appendChild(imgContainer);
-        if (image.image_name.includes("prediction")) {
-            const downloadBtn = document.createElement('button');
-            downloadBtn.textContent = 'Download Coordinates';
-            downloadBtn.textContent = 'Download Coordinates';
-            downloadBtn.style.width = '120px';
-            downloadBtn.style.height = '30px';
-            downloadBtn.style.fontSize = '12px';
-            downloadBtn.style.marginTop = '100px';
-            downloadBtn.addEventListener('click', () => {
-                downloadGeoJSON(image.image_coordinates);
-            });
-            const btnContainer = document.createElement('div');
-            btnContainer.appendChild(downloadBtn);
-            previewContainer.appendChild(btnContainer);
-        }
-      });
-    })
-    .catch(error => console.error(error));
+         console.log(data);
+         get_images();
     })
     .catch(error => {
         // Handle errors

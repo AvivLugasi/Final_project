@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Display Debris On Map</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+<!-- Json editor -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.1.4/jsoneditor.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsoneditor/9.1.4/jsoneditor.min.js"></script>
+<!-- github icon-->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300&display=swap" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+<style>
+        body { margin:0; padding:0; font-family: 'Roboto', sans-serif;}
+        #map { position:absolute; top:0; bottom:0; width:100%; margin-top: 40px}
+        nav {
+            background-color: #f2f2f2;
+            position: fixed;
+            top: 0;
+            width: 100%;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            display: inline-block;
+        }
+
+        nav ul li a {
+            display: block;
+            padding: 10px 20px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        nav ul li a:hover {
+            background-color: #ddd;
+        }
+        .code-input {
+            top: 250px;
+            left: 10px;
+            z-index:100;
+            margin-left: 15px;
+            background-color: rgba(220, 214, 214, 0.9);
+            padding: 15px;
+            color:black;
+            font-size:15px;
+            height: 650px;
+            width: 850px;
+        }
+
+        #upload-form {
+            position: relative;
+            display: inline-block;
+            margin-top: 200px;
+            margin-bottom: 40px;
+            margin-left: 15px;
+            padding: 15px;
+            justify-content: center;
+            background-color: #f2f2f2;
+        }
+
+        #upload-form button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            margin-top: 15px;
+            margin-left: 70px;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        #upload-form button:hover {
+              background-color: #45a049;
+        }
+</style>
+</head>
+<body>
+    <nav>
+            <ul>
+                <li><a href="/">Select Area</a></li>
+                <li><a href="/Find_Debris">Find Debris</a></li>
+                 <li><a href="/display_on_map">Display Debris On Map</a></li>
+                <li><a href="https://gyehezke.wordpress.com/" target="_blank">About The Project</a></li>
+                <li><a href="https://gyehezke.wordpress.com/contact/" target="_blank">Contact</a></li>
+                <li><a href="https://github.com/AvivLugasi/Final_project" target="_blank" class="github-icon"><i class="fab fa-github"></i></a></li>
+            </ul>
+        </nav>
+    <div id="map"></div>
+    <div class="code-input" id="geojson_input">
+       <form id="upload-form" action="http://127.0.0.1:5000/area_to_display" method="post" enctype="multipart/form-data">
+            <label>Select predictions for display:</label><br><br>
+            {% for prediction_folder_name in predictions_folder_names %}
+                <input type="checkbox" name="checkboxes" value="{{ prediction_folder_name }}">
+                <label>{{ prediction_folder_name }}</label><br>
+            {% endfor %}
+            <button type="submit" id="upload-button">Mark on Map</button>
+       </form>
+    </div>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoiYXZpdmx1Z2FzaSIsImEiOiJjbGgxM28yNHIwemtrM3JwZXl6bWQxb2t3In0.LQrUMFUAPx2MZow_cNndLg';
+        const map = new mapboxgl.Map({
+            container: 'map',
+            // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+            style: 'mapbox://styles/mapbox/outdoors-v12',
+            center: [31.46416951226783,
+              33.52349928137136], // starting position
+            zoom: 5, // starting zoom
+        });
+
+        map.on('load', () => {
+            var points = JSON.parse('{{ points | safe }}');
+            const features = [];
+
+              points.forEach(point => {
+                const feature = {
+                  type: 'Feature',
+                  geometry: {
+                    type: 'Point',
+                    coordinates: point
+                  }
+                };
+
+                // Push the feature to the 'features' array
+                features.push(feature);
+              });
+              map.addSource('national-park', {
+                type: 'geojson',
+                data: {
+                  type: 'FeatureCollection',
+                  features: features
+                }
+            });
+            map.addLayer({
+                'id': 'park-volcanoes',
+                'type': 'circle',
+                'source': 'national-park',
+                'paint': {
+                    'circle-radius': 6,
+                    'circle-color': '#B42222'
+                },
+                'filter': ['==', '$type', 'Point']
+            });
+        });
+    </script>
+</body>
+</html>

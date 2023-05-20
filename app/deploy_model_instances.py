@@ -17,7 +17,7 @@ class ModelDeployment:
                  model_name: str = "efficientnetb4",
                  model_weights_path: str = "best_model_efficientnetb4_4.h5",
                  num_of_instances: int = multiprocessing.cpu_count(),
-                 threshold: float = 0.5
+                 threshold: float = 0.8
                  ):
         """
         Create a deployment object, which initialize 'num_of_instances' instances of the\n

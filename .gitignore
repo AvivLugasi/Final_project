@@ -18,5 +18,5 @@ Models/SementicModels/best_model_vgg19_1.h5
 # planet search results
 app/data_utils/searches/
 app/searches/
-app/static/images/
-app/static/predictions/
+app/static/*predictions*/
+app/static/*images*/
