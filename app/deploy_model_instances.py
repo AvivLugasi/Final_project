@@ -17,7 +17,8 @@ class ModelDeployment:
                  model_name: str = "efficientnetb4",
                  model_weights_path: str = "best_model_efficientnetb4_4.h5",
                  num_of_instances: int = multiprocessing.cpu_count(),
-                 threshold: float = 0.8
+                 threshold: float = 0.8,
+                 num_of_debris_pixels = 50
                  ):
         """
         Create a deployment object, which initialize 'num_of_instances' instances of the\n
@@ -36,6 +37,7 @@ class ModelDeployment:
         self.models_list = self.create_model_instance()
         self.lock = threading.Lock()
         self.threshold = threshold
+        self.num_of_debris_pixels = num_of_debris_pixels
 
     def create_model_instance(self):
         """
@@ -146,8 +148,9 @@ class ModelDeployment:
             detected = 0
             # if the model predicted any debris in the image
             if len(np.unique(prediction)) == 2:
-                detected = 1
-                prediction = self.draw_debris_contours(mask=prediction, image=model_input)
+                if np.count_nonzero(prediction == 255) >= self.num_of_debris_pixels:
+                    detected = 1
+                    prediction = self.draw_debris_contours(mask=prediction, image=model_input)
             with self.lock:
                 results_list.append([
                                     model_input,
